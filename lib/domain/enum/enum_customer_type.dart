@@ -1,0 +1,1 @@
+enum EnumCustomerType { pf, pj }

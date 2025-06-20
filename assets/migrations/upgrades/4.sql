@@ -1,0 +1,1 @@
+ALTER TABLE product ADD COLUMN favorite BOOLEAN DEFAULT 0;
