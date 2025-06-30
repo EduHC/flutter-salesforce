@@ -7,8 +7,10 @@ import 'package:dart_kafka/dart_kafka.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_isolate/flutter_isolate.dart';
+import 'package:salesforce/data/DTO/database_query_clause_dto.dart';
 import 'package:salesforce/data/DTO/http_request_dto.dart';
 import 'package:salesforce/data/factory/entity_conversor_factory.dart';
+import 'package:salesforce/domain/enum/enum_database_query_operators.dart';
 import 'package:salesforce/domain/model/api_log.dart';
 import 'package:salesforce/module/service/api_log_service.dart';
 import 'package:salesforce/module/service/kafka_service.dart';
@@ -195,8 +197,11 @@ class HttpGateway {
 
   // Log Handler
   static Future<void> _updateLogWithError(DioException error) async {
-    Map<String, dynamic> params = {
-      'id': ' ${error.requestOptions.headers['x-request-id']}',
+    Map<String, DatabaseQueryClauseDto> params = {
+      'id': DatabaseQueryClauseDto(
+        operator: DatabaseQueryOperator.eq,
+        value: error.requestOptions.headers['x-request-id'],
+      ),
     };
     List<ApiLog> logs = await _logService.list(whereParams: params);
 
@@ -259,8 +264,11 @@ class HttpGateway {
   }
 
   static Future<void> _updateLogWithSuccess(Response response) async {
-    Map<String, dynamic> params = {
-      'id': '${response.requestOptions.headers['x-request-id']}',
+    Map<String, DatabaseQueryClauseDto> params = {
+      'id': DatabaseQueryClauseDto(
+        operator: DatabaseQueryOperator.eq,
+        value: response.requestOptions.headers['x-request-id'],
+      ),
     };
     List<ApiLog> logs = await _logService.list(whereParams: params);
 
@@ -297,15 +305,25 @@ class HttpGateway {
     required HttpRequestDto dto,
     bool isWifiException = false,
   }) async {
-    Map<String, dynamic> params = {'route': '\'${dto.uri}\' '};
+    Map<String, DatabaseQueryClauseDto> params = {
+      'route': DatabaseQueryClauseDto(
+        operator: DatabaseQueryOperator.eq,
+        value: '\'${dto.uri}\' ',
+      ),
+    };
 
     if (!dto.path.contains('/agenda/')) {
-      params['status'] = ' \'RETRY\' ';
+      params['status'] = DatabaseQueryClauseDto(
+        operator: DatabaseQueryOperator.eq,
+        value: ' \'RETRY\' ',
+      );
     }
 
     if (dto.path.contains('iniciar') || dto.path.contains('finalizar')) {
-      params['status'] +=
-          ' AND requestBody LIKE \'%"idPedidoItem": ${dto.data['idPedidoItem']}%\' ';
+      params['requestBody'] = DatabaseQueryClauseDto(
+        operator: DatabaseQueryOperator.like,
+        value: '"idPedidoItem": ${dto.data['idPedidoItem']}',
+      );
     }
 
     List<ApiLog> logs = await _logService.list(whereParams: params);

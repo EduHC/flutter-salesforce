@@ -1,4 +1,5 @@
 import 'package:salesforce/data/DTO/database_join_clause_dto.dart';
+import 'package:salesforce/data/DTO/database_query_clause_dto.dart';
 import 'package:salesforce/data/repository/api/api_customer_repository.dart';
 import 'package:salesforce/data/repository/local/local_customer_repository.dart';
 import 'package:salesforce/domain/model/customer.dart';
@@ -22,7 +23,7 @@ class CustomerService {
     int res = -1;
 
     try {
-      res = await _localRepository.delete(id);
+      res = await _localRepository.delete(id: id);
     } on Exception {
       rethrow;
     }
@@ -32,7 +33,7 @@ class CustomerService {
 
   Future<int> localInsert({required Customer entity}) async {
     try {
-      return await _localRepository.insert(entity);
+      return await _localRepository.insert(entity: entity);
     } on Exception {
       rethrow;
     }
@@ -41,7 +42,7 @@ class CustomerService {
   Future<List<Customer>> localList({
     List<String>? columns,
     List<DatabaseJoinClauseDto>? joins,
-    Map<String, dynamic>? whereParams,
+    Map<String, DatabaseQueryClauseDto>? whereParams,
     List<String>? orderBy,
     int? limit,
     int? offset,
@@ -68,7 +69,7 @@ class CustomerService {
     int res = -1;
 
     try {
-      res = await _localRepository.update(entity);
+      res = await _localRepository.update(entity: entity);
     } on Exception {
       rethrow;
     }
@@ -78,7 +79,7 @@ class CustomerService {
 
   Future<Customer> localFindById({required int id}) async {
     try {
-      return await _localRepository.findById(id);
+      return await _localRepository.findById(id: id);
     } on Exception {
       rethrow;
     }
@@ -86,18 +87,17 @@ class CustomerService {
 
   Future<void> batchInsert({required List<Customer> entities}) async {
     try {
-      await _localRepository.batchInsert(entities);
+      await _localRepository.batchInsert(entities: entities);
     } on Exception {
       rethrow;
     }
   }
 
   Future<void> batchDelete({
-    required String where,
-    required List<Object?> whereArgs,
+    required Map<String, DatabaseQueryClauseDto> whereParams,
   }) async {
     try {
-      await _localRepository.batchDelete(where, whereArgs);
+      await _localRepository.batchDelete(whereParams: whereParams);
     } on Exception {
       rethrow;
     }

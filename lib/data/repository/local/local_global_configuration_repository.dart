@@ -1,7 +1,9 @@
 import 'package:salesforce/data/DTO/database_join_clause_dto.dart';
+import 'package:salesforce/data/DTO/database_query_clause_dto.dart';
 import 'package:salesforce/data/DTO/database_request_dto.dart';
 import 'package:salesforce/data/gateway/database_gateway.dart';
 import 'package:salesforce/data/repository/i_generic_local_repository.dart';
+import 'package:salesforce/domain/enum/enum_database_query_operators.dart';
 import 'package:salesforce/domain/model/app_configuration.dart';
 import 'package:salesforce/util/database_util.dart';
 import 'package:salesforce/util/util.dart';
@@ -21,10 +23,12 @@ class LocalGlobalConfigurationRepository
   final DatabaseGateway _gateway = DatabaseGateway();
 
   @override
-  Future<bool> batchDelete(String where, List<Object?> whereArgs) async {
+  Future<bool> batchDelete({
+    required Map<String, DatabaseQueryClauseDto> whereParams,
+  }) async {
     final String sql = DatabaseUtils.buildDeleteQuery(
       tableName,
-      whereParams: {'1': 1},
+      whereParams: whereParams,
     );
     final DatabaseRequestDto req = DatabaseRequestDto(
       sql,
@@ -40,7 +44,7 @@ class LocalGlobalConfigurationRepository
   }
 
   @override
-  Future<void> batchInsert(List<AppConfiguration> entities) async {
+  Future<void> batchInsert({required List<AppConfiguration> entities}) async {
     if (entities.isEmpty) return;
 
     for (AppConfiguration customer in entities) {
@@ -60,11 +64,16 @@ class LocalGlobalConfigurationRepository
   }
 
   @override
-  Future<int> delete(int id) async {
+  Future<int> delete({required int id}) async {
     String sql = DatabaseUtils.buildUpdateQuery(
       tableName,
       setValues: {'isActive': 1},
-      whereParams: {'id': id},
+      whereParams: {
+        'id': DatabaseQueryClauseDto(
+          operator: DatabaseQueryOperator.eq,
+          value: id,
+        ),
+      },
     );
 
     DatabaseRequestDto req = DatabaseRequestDto(
@@ -80,10 +89,15 @@ class LocalGlobalConfigurationRepository
   }
 
   @override
-  Future<AppConfiguration> findById(int id) async {
+  Future<AppConfiguration> findById({required int id}) async {
     final String sql = DatabaseUtils.buildSelectQuery(
       tableName,
-      whereParams: {'id': id},
+      whereParams: {
+        'id': DatabaseQueryClauseDto(
+          operator: DatabaseQueryOperator.eq,
+          value: id,
+        ),
+      },
     );
     final DatabaseRequestDto req = DatabaseRequestDto(
       sql,
@@ -98,7 +112,7 @@ class LocalGlobalConfigurationRepository
   }
 
   @override
-  Future<int> insert(AppConfiguration entity) async {
+  Future<int> insert({required AppConfiguration entity}) async {
     final String sql = DatabaseUtils.buildInsertQuery(
       tableName,
       values: entity.toMap(),
@@ -119,7 +133,7 @@ class LocalGlobalConfigurationRepository
   Future<List<AppConfiguration>> list({
     List<String>? columns,
     List<DatabaseJoinClauseDto>? joins,
-    Map<String, dynamic>? whereParams,
+    Map<String, DatabaseQueryClauseDto>? whereParams,
     List<String>? orderBy,
     int? limit,
     int? offset,
@@ -146,11 +160,16 @@ class LocalGlobalConfigurationRepository
   }
 
   @override
-  Future<int> update(AppConfiguration entity) async {
+  Future<int> update({required AppConfiguration entity}) async {
     final String sql = DatabaseUtils.buildUpdateQuery(
       tableName,
       setValues: entity.toMap(),
-      whereParams: {'id': entity.id},
+      whereParams: {
+        'id': DatabaseQueryClauseDto(
+          operator: DatabaseQueryOperator.eq,
+          value: entity.id,
+        ),
+      },
     );
     final DatabaseRequestDto req = DatabaseRequestDto(
       sql,

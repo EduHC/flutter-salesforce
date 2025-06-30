@@ -2,15 +2,38 @@
 
 A new Flutter project.
 
-## Getting Started
+## Project Structure
 
-This project is a starting point for a Flutter application.
+```
+lib/
+    ├── data/           # Data access layer and communication abstractions
+    │ ├── DTO/              # Mappers for API/DB/Kafka request/responses
+    │ ├── factory/          # Entity Conversor Factory
+    │ ├── gateway/          # Central Communication Interfaces and Isolates
+    │ └── repository/       # Data sources abstraction and implementation
+    │   ├── api/                # REST API
+    │   ├── kafka/              # Apache Kafka
+    │   └── local/              # SQLite
+    ├── domain/         # Business logic and application rules
+    │   ├── enum/           
+    │   ├── model/          
+    │   └── transform/      # Transforms RawJson to application model expectation JSON
+    ├── module/         # Application modules and services
+    │   ├── handler/        # Event/message handlers (Kafka/entityDependants)
+    │   ├── service/        
+    │   └── updater/        # Background/scheduled update modules
+    ├── presentation/   # UI layer components
+    │   ├── dialogs/        
+    │   ├── screen/         
+    │   ├── state/      
+    │   └── widget/         
+    ├── util/           # Utilities and helpers
+    ├── globals.dart    # App-wide constants
+    ├── main.dart       
+    └── setup.dart      # Initialization Process
+```
 
-A few resources to get you started if this is your first Flutter project:
+## Code Workflow
+Here follows a breif explanation of how the base structure of the code works, from the presentation Layer until the data Layer.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+![image info](./code-flow.jpeg)

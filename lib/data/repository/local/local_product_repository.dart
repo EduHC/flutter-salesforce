@@ -1,7 +1,9 @@
 import 'package:salesforce/data/DTO/database_join_clause_dto.dart';
+import 'package:salesforce/data/DTO/database_query_clause_dto.dart';
 import 'package:salesforce/data/DTO/database_request_dto.dart';
 import 'package:salesforce/data/gateway/database_gateway.dart';
 import 'package:salesforce/data/repository/i_generic_local_repository.dart';
+import 'package:salesforce/domain/enum/enum_database_query_operators.dart';
 import 'package:salesforce/domain/model/product.dart';
 import 'package:salesforce/util/database_util.dart';
 import 'package:salesforce/util/util.dart';
@@ -20,10 +22,12 @@ class LocalProductRepository implements IGenericLocalRepository<Product> {
   final DatabaseGateway _gateway = DatabaseGateway();
 
   @override
-  Future<bool> batchDelete(String where, List<Object?> whereArgs) async {
+  Future<bool> batchDelete({
+    required Map<String, DatabaseQueryClauseDto> whereParams,
+  }) async {
     final String sql = DatabaseUtils.buildDeleteQuery(
       tableName,
-      whereParams: {'1': 1},
+      whereParams: whereParams,
     );
     final DatabaseRequestDto req = DatabaseRequestDto(
       sql,
@@ -39,16 +43,22 @@ class LocalProductRepository implements IGenericLocalRepository<Product> {
   }
 
   @override
-  Future<void> batchInsert(List<Product> entities) async {
-    final List<Future> inserts = entities.map((e) => insert(e)).toList();
+  Future<void> batchInsert({required List<Product> entities}) async {
+    final List<Future> inserts =
+        entities.map((e) => insert(entity: e)).toList();
     await Future.wait(inserts);
   }
 
   @override
-  Future<int> delete(int id) async {
+  Future<int> delete({required int id}) async {
     String sql = DatabaseUtils.buildDeleteQuery(
       tableName,
-      whereParams: {'id': id},
+      whereParams: {
+        'id': DatabaseQueryClauseDto(
+          operator: DatabaseQueryOperator.eq,
+          value: id,
+        ),
+      },
     );
 
     DatabaseRequestDto req = DatabaseRequestDto(
@@ -64,10 +74,15 @@ class LocalProductRepository implements IGenericLocalRepository<Product> {
   }
 
   @override
-  Future<Product> findById(int id) async {
+  Future<Product> findById({required int id}) async {
     final String sql = DatabaseUtils.buildSelectQuery(
       tableName,
-      whereParams: {'id': id},
+      whereParams: {
+        'id': DatabaseQueryClauseDto(
+          operator: DatabaseQueryOperator.eq,
+          value: id,
+        ),
+      },
     );
     final DatabaseRequestDto req = DatabaseRequestDto(
       sql,
@@ -82,7 +97,7 @@ class LocalProductRepository implements IGenericLocalRepository<Product> {
   }
 
   @override
-  Future<int> insert(Product entity) async {
+  Future<int> insert({required Product entity}) async {
     final String sql = DatabaseUtils.buildInsertQuery(
       tableName,
       values: entity.toMap(),
@@ -103,7 +118,7 @@ class LocalProductRepository implements IGenericLocalRepository<Product> {
   Future<List<Product>> list({
     List<String>? columns,
     List<DatabaseJoinClauseDto>? joins,
-    Map<String, dynamic>? whereParams,
+    Map<String, DatabaseQueryClauseDto>? whereParams,
     List<String>? orderBy,
     int? limit,
     int? offset,
@@ -130,11 +145,16 @@ class LocalProductRepository implements IGenericLocalRepository<Product> {
   }
 
   @override
-  Future<int> update(Product entity) async {
+  Future<int> update({required Product entity}) async {
     final String sql = DatabaseUtils.buildUpdateQuery(
       tableName,
       setValues: entity.toMap(),
-      whereParams: {'id': entity.id},
+      whereParams: {
+        'id': DatabaseQueryClauseDto(
+          operator: DatabaseQueryOperator.eq,
+          value: entity.id,
+        ),
+      },
     );
     final DatabaseRequestDto req = DatabaseRequestDto(
       sql,

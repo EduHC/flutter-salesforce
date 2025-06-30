@@ -1,4 +1,5 @@
 import 'package:salesforce/data/DTO/database_join_clause_dto.dart';
+import 'package:salesforce/data/DTO/database_query_clause_dto.dart';
 import 'package:salesforce/data/repository/local/local_kafka_topic_offset_repository.dart';
 import 'package:salesforce/domain/model/kafka_topic_offset.dart';
 
@@ -19,7 +20,7 @@ class KafkaTopicOffsetService {
     int res = -1;
 
     try {
-      res = await _repository.delete(id);
+      res = await _repository.delete(id: id);
     } on Exception {
       rethrow;
     }
@@ -29,7 +30,7 @@ class KafkaTopicOffsetService {
 
   Future<int> insert({required KafkaTopicOffset entity}) async {
     try {
-      return await _repository.insert(entity);
+      return await _repository.insert(entity: entity);
     } on Exception {
       rethrow;
     }
@@ -38,7 +39,7 @@ class KafkaTopicOffsetService {
   Future<List<KafkaTopicOffset>> list({
     List<String>? columns,
     List<DatabaseJoinClauseDto>? joins,
-    Map<String, dynamic>? whereParams,
+    Map<String, DatabaseQueryClauseDto>? whereParams,
     List<String>? orderBy,
     int? limit,
     int? offset,
@@ -65,7 +66,7 @@ class KafkaTopicOffsetService {
     int res = -1;
 
     try {
-      res = await _repository.update(entity);
+      res = await _repository.update(entity: entity);
     } on Exception {
       rethrow;
     }
@@ -75,7 +76,7 @@ class KafkaTopicOffsetService {
 
   Future<KafkaTopicOffset> findById({required int id}) async {
     try {
-      return await _repository.findById(id);
+      return await _repository.findById(id: id);
     } on Exception {
       rethrow;
     }
@@ -83,18 +84,17 @@ class KafkaTopicOffsetService {
 
   Future<void> batchInsert({required List<KafkaTopicOffset> entities}) async {
     try {
-      await _repository.batchInsert(entities);
+      await _repository.batchInsert(entities: entities);
     } on Exception {
       rethrow;
     }
   }
 
   Future<void> batchDelete({
-    required String where,
-    required List<Object?> whereArgs,
+    required Map<String, DatabaseQueryClauseDto> whereParams,
   }) async {
     try {
-      await _repository.batchDelete(where, whereArgs);
+      await _repository.batchDelete(whereParams: whereParams);
     } on Exception {
       rethrow;
     }

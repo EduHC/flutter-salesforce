@@ -4,48 +4,22 @@ import 'package:salesforce/data/DTO/database_request_dto.dart';
 import 'package:salesforce/data/gateway/database_gateway.dart';
 import 'package:salesforce/data/repository/i_generic_local_repository.dart';
 import 'package:salesforce/domain/enum/enum_database_query_operators.dart';
-import 'package:salesforce/domain/model/kafka_topic_offset.dart';
+import 'package:salesforce/domain/model/sale.dart';
 import 'package:salesforce/util/database_util.dart';
 import 'package:salesforce/util/util.dart';
 
-class LocalKafkaTopicOffsetRepository
-    implements IGenericLocalRepository<KafkaTopicOffset> {
-  static LocalKafkaTopicOffsetRepository? _repository;
+class LocalSaleRepository implements IGenericLocalRepository<Sale> {
+  static LocalSaleRepository? _instance;
 
-  LocalKafkaTopicOffsetRepository._();
+  LocalSaleRepository._();
 
-  factory LocalKafkaTopicOffsetRepository() {
-    _repository ??= LocalKafkaTopicOffsetRepository._();
-    return _repository!;
+  factory LocalSaleRepository() {
+    _instance ??= LocalSaleRepository._();
+    return _instance!;
   }
 
-  final String tableName = 'kafkaTopicOffset';
+  final String tableName = 'sale';
   final DatabaseGateway _gateway = DatabaseGateway();
-
-  @override
-  Future<int> delete({required int id}) async {
-    String sql = DatabaseUtils.buildUpdateQuery(
-      tableName,
-      setValues: {'isActive': 1},
-      whereParams: {
-        'id': DatabaseQueryClauseDto(
-          operator: DatabaseQueryOperator.eq,
-          value: id,
-        ),
-      },
-    );
-
-    DatabaseRequestDto req = DatabaseRequestDto(
-      sql,
-      tableName,
-      Util.generateMsgId(),
-    );
-    final res = _gateway.execute(req: req);
-
-    if (res is Exception) throw res;
-
-    return res as int;
-  }
 
   @override
   Future<bool> batchDelete({
@@ -69,7 +43,61 @@ class LocalKafkaTopicOffsetRepository
   }
 
   @override
-  Future<int> insert({required KafkaTopicOffset entity}) async {
+  Future<void> batchInsert({required List<Sale> entities}) async {
+    final List<Future> inserts =
+        entities.map((e) => insert(entity: e)).toList();
+    await Future.wait(inserts);
+  }
+
+  @override
+  Future<int> delete({required int id}) async {
+    String sql = DatabaseUtils.buildDeleteQuery(
+      tableName,
+      whereParams: {
+        'id': DatabaseQueryClauseDto(
+          operator: DatabaseQueryOperator.eq,
+          value: id,
+        ),
+      },
+    );
+
+    DatabaseRequestDto req = DatabaseRequestDto(
+      sql,
+      tableName,
+      Util.generateMsgId(),
+    );
+    final res = _gateway.execute(req: req);
+
+    if (res is Exception) throw res;
+
+    return id;
+  }
+
+  @override
+  Future<Sale> findById({required int id}) async {
+    final String sql = DatabaseUtils.buildSelectQuery(
+      tableName,
+      whereParams: {
+        'id': DatabaseQueryClauseDto(
+          operator: DatabaseQueryOperator.eq,
+          value: id,
+        ),
+      },
+    );
+    final DatabaseRequestDto req = DatabaseRequestDto(
+      sql,
+      tableName,
+      Util.generateMsgId(),
+    );
+    final res = _gateway.execute(req: req);
+
+    if (res is Exception) throw res;
+
+    return await res as Sale;
+  }
+
+  @override
+  Future<int> insert({required Sale entity}) async {
     final String sql = DatabaseUtils.buildInsertQuery(
       tableName,
       values: entity.toMap(),
@@ -87,7 +115,7 @@ class LocalKafkaTopicOffsetRepository
   }
 
   @override
-  Future<List<KafkaTopicOffset>> list({
+  Future<List<Sale>> list({
     List<String>? columns,
     List<DatabaseJoinClauseDto>? joins,
     Map<String, DatabaseQueryClauseDto>? whereParams,
@@ -113,29 +141,11 @@ class LocalKafkaTopicOffsetRepository
 
     if (res is Exception) throw res;
 
-    return res as List<KafkaTopicOffset>;
+    return res == null ? [] : res as List<Sale>;
   }
 
   @override
-  Future<void> batchInsert({required List<KafkaTopicOffset> entities}) async {
-    if (entities.isEmpty) return;
-
-    for (KafkaTopicOffset customer in entities) {
-      final String sql = DatabaseUtils.buildInsertQuery(
-        tableName,
-        values: customer.toMap(),
-      );
-      final DatabaseRequestDto req = DatabaseRequestDto(
-        sql,
-        tableName,
-        Util.generateMsgId(),
-      );
-      _gateway.execute(req: req);
-    }
-  }
-
-  @override
-  Future<int> update({required KafkaTopicOffset entity}) async {
+  Future<int> update({required Sale entity}) async {
     final String sql = DatabaseUtils.buildUpdateQuery(
       tableName,
       setValues: entity.toMap(),
@@ -155,29 +165,6 @@ class LocalKafkaTopicOffsetRepository
 
     if (res is Exception) throw res;
 
-    return 0;
-  }
-
-  @override
-  Future<KafkaTopicOffset> findById({required int id}) async {
-    final String sql = DatabaseUtils.buildSelectQuery(
-      tableName,
-      whereParams: {
-        'id': DatabaseQueryClauseDto(
-          operator: DatabaseQueryOperator.eq,
-          value: id,
-        ),
-      },
-    );
-    final DatabaseRequestDto req = DatabaseRequestDto(
-      sql,
-      tableName,
-      Util.generateMsgId(),
-    );
-    final res = _gateway.execute(req: req);
-
-    if (res is Exception) throw res;
-
-    return await res as KafkaTopicOffset;
+    return res as int;
   }
 }

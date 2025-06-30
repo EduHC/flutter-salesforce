@@ -1,7 +1,9 @@
 import 'package:dart_kafka/dart_kafka.dart';
+import 'package:salesforce/data/DTO/database_query_clause_dto.dart';
 import 'package:salesforce/data/DTO/kafka_fetch_request_dto.dart';
 import 'package:salesforce/data/DTO/kafka_produce_request_dto.dart';
 import 'package:salesforce/data/repository/kafka/kafka_repository.dart';
+import 'package:salesforce/domain/enum/enum_database_query_operators.dart';
 import 'package:salesforce/domain/model/kafka_topic_offset.dart';
 import 'package:salesforce/globals.dart';
 import 'package:salesforce/module/service/kafka_topic_offset_service.dart';
@@ -55,7 +57,12 @@ class KafkaService {
 
     if (offset == null) {
       partitionsOffset = await offsetService.list(
-        whereParams: {'topicName': topic},
+        whereParams: {
+          'topicName': DatabaseQueryClauseDto(
+            operator: DatabaseQueryOperator.eq,
+            value: topic,
+          ),
+        },
       );
     }
 
@@ -70,7 +77,12 @@ class KafkaService {
       );
 
       partitionsOffset = await offsetService.list(
-        whereParams: {'topicName': topic},
+        whereParams: {
+          'topicName': DatabaseQueryClauseDto(
+            operator: DatabaseQueryOperator.eq,
+            value: topic,
+          ),
+        },
       );
     }
 
