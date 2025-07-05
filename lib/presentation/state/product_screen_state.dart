@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:salesforce/domain/model/product.dart';
-import 'package:salesforce/module/service/chart_service.dart';
+import 'package:salesforce/module/service/cart_service.dart';
 import 'package:salesforce/module/service/product_service.dart';
 
 class ProductScreenState extends ChangeNotifier {
@@ -14,20 +15,21 @@ class ProductScreenState extends ChangeNotifier {
   }
 
   final ProductService _service = ProductService();
-  final ChartService _chartService = ChartService();
+  final CartService _cartService = CartService();
   bool _initialLoadDone = false;
 
   final Set<Product> _products = {};
   final Set<Product> _filteredProducts = {};
-  String _filter = '';
+  final TextEditingController _txtController = TextEditingController();
 
   List<Product> get products => _filteredProducts.toList();
   bool get initialLoadDone => _initialLoadDone;
+  TextEditingController get txtController => _txtController;
 
   // Setters
 
   void setFilterValue({required String filter}) {
-    _filter = filter;
+    _txtController.text = filter;
     _filterProducts();
     notifyListeners();
   }
@@ -52,11 +54,12 @@ class ProductScreenState extends ChangeNotifier {
 
   void _filterProducts() {
     _filteredProducts.clear();
-    if (_filter.isEmpty) _filteredProducts.addAll(_products);
+    if (_txtController.text.isEmpty) _filteredProducts.addAll(_products);
 
     _filteredProducts.addAll(
       _products.where(
-        (prod) => prod.name.toUpperCase().contains(_filter.toUpperCase()),
+        (prod) =>
+            prod.name.toUpperCase().contains(_txtController.text.toUpperCase()),
       ),
     );
   }
@@ -67,7 +70,7 @@ class ProductScreenState extends ChangeNotifier {
     await loadProducts();
   }
 
-  void handleAddToChartButtonClick({required Product prod}) {
-    _chartService.addProduct(product: prod);
+  void handleAddTocartButtonClick({required Product prod}) {
+    _cartService.addProduct(product: prod);
   }
 }

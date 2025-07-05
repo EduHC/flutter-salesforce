@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
 class Globals {
   static Globals? _globals;
@@ -12,6 +13,9 @@ class Globals {
 
   RootIsolateToken? token;
   List<String> topics = [];
+  PersistentTabController tabController = PersistentTabController(
+    initialIndex: 0,
+  );
 
   bool hasError = false;
   String? errorMsg;

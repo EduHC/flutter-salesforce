@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:salesforce/domain/model/product.dart';
+import 'package:salesforce/module/service/cart_service.dart';
 import 'package:salesforce/presentation/widget/product_screen/star_rating_widget.dart';
 
 class ProductDetail extends StatelessWidget {
   final Product product;
   final ImageProvider img;
+  final CartService _cartService = CartService();
 
-  const ProductDetail({super.key, required this.product, required this.img});
+  ProductDetail({super.key, required this.product, required this.img});
 
   @override
   Widget build(BuildContext context) {
@@ -136,7 +138,7 @@ class ProductDetail extends StatelessWidget {
                     ],
                   ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () => _cartService.addProduct(product: product),
                     icon: Icon(Icons.add_shopping_cart, color: Colors.green),
                     iconSize: MediaQuery.of(context).size.width * 0.1,
                   ),

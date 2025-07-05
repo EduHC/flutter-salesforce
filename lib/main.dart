@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:salesforce/presentation/screen/main_screen.dart';
-import 'package:salesforce/presentation/screen/product_screen.dart';
 import 'package:salesforce/setup.dart';
 
 void main() async {
@@ -17,7 +16,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepPurple,
+          primary: Colors.white,
+          secondary: Colors.amber,
+          tertiary: Colors.black,
+        ),
         textTheme: TextTheme(
           headlineMedium: TextStyle(
             color: Colors.black,
@@ -37,10 +41,16 @@ class MyApp extends StatelessWidget {
             fontWeight: FontWeight.w600,
             color: Colors.green[700],
           ),
+          titleSmall: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          displaySmall: TextStyle(fontSize: 14, color: Colors.grey[700]),
+          displayMedium: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Colors.green[700],
+          ),
         ),
       ),
       home: const MainScreen(),
-      routes: {'product_list': (context) => const ProductScreen()},
     );
   }
 }

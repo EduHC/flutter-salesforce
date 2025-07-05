@@ -55,7 +55,7 @@ class CustomerScreenState extends ChangeNotifier {
   }
 
   Future<void> handleDelButtonClick() async {
-    await _customerService.batchDelete(where: "", whereArgs: []);
+    await _customerService.batchDelete(whereParams: {});
     _customers.clear();
     notifyListeners();
   }

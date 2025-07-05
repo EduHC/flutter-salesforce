@@ -24,7 +24,7 @@ class DatabaseGateway {
     return _instance!;
   }
 
-  static final int _version = 4;
+  static final int _version = 5;
   static bool _isDrainingQueue = false;
   bool _isClosed = false;
 

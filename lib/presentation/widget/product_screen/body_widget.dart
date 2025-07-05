@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:salesforce/domain/model/product.dart';
 import 'package:salesforce/presentation/screen/product_details_screen.dart';
 import 'package:salesforce/presentation/state/product_screen_state.dart';
-import 'package:salesforce/presentation/widget/product_screen/body_header_widget.dart';
+import 'package:salesforce/presentation/widget/header_widget.dart';
+import "package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart";
 
 class ProductScreenBodyWidget extends StatelessWidget {
   final List<Product> products;
@@ -16,7 +17,7 @@ class ProductScreenBodyWidget extends StatelessWidget {
 
     return Column(
       children: [
-        BodyHeaderWidget(),
+        HeaderWidget(),
         SizedBox(height: MediaQuery.of(context).size.height * 0.01),
 
         if (products.isEmpty)
@@ -122,14 +123,9 @@ class ProductScreenBodyWidget extends StatelessWidget {
               MediaQuery.of(context).size.height * 0.02,
             ),
             onTap:
-                () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder:
-                        (context) => ProductDetail(
-                          product: prod,
-                          img: NetworkImage(prod.img),
-                        ),
-                  ),
+                () => pushScreenWithoutNavBar(
+                  context,
+                  ProductDetail(product: prod, img: NetworkImage(prod.img)),
                 ),
             child: Padding(
               padding: EdgeInsets.all(
@@ -145,29 +141,19 @@ class ProductScreenBodyWidget extends StatelessWidget {
                       children: [
                         Text(
                           prod.name,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context).textTheme.titleSmall,
                         ),
                         const SizedBox(height: 6),
                         Text(
                           prod.description,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[700],
-                          ),
+                          style: Theme.of(context).textTheme.displaySmall,
                         ),
                         const SizedBox(height: 8),
                         Text(
                           'R\$ ${prod.price.toStringAsFixed(2)}',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.green[700],
-                          ),
+                          style: Theme.of(context).textTheme.displayMedium,
                         ),
                       ],
                     ),
@@ -186,8 +172,7 @@ class ProductScreenBodyWidget extends StatelessWidget {
                       SizedBox(height: 4),
                       IconButton(
                         onPressed:
-                            () =>
-                                _state.handleAddToChartButtonClick(prod: prod),
+                            () => _state.handleAddTocartButtonClick(prod: prod),
                         icon: Icon(
                           Icons.add_shopping_cart,
                           color: Colors.green[700],

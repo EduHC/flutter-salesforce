@@ -1,11 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:salesforce/module/service/chart_service.dart';
+import 'package:salesforce/globals.dart';
+import 'package:salesforce/module/service/cart_service.dart';
 import 'package:salesforce/presentation/state/product_screen_state.dart';
 
-class BodyHeaderWidget extends StatelessWidget {
-  BodyHeaderWidget({super.key});
+class HeaderWidget extends StatefulWidget {
+  const HeaderWidget({super.key});
+
+  @override
+  State<HeaderWidget> createState() => _HeaderWidgetState();
+}
+
+class _HeaderWidgetState extends State<HeaderWidget> {
   final ProductScreenState _state = ProductScreenState();
-  final ChartService _chartService = ChartService();
+  final CartService _cartService = CartService();
+  final Globals globals = Globals();
+  late FocusNode _focusNode;
+
+  @override
+  void initState() {
+    _focusNode = FocusNode();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,17 +37,26 @@ class BodyHeaderWidget extends StatelessWidget {
           vertical: MediaQuery.of(context).size.height * 0.02,
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  "Products List",
-                  style: Theme.of(context).textTheme.headlineSmall,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Melchior Kalinor",
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    Text(
+                      "PR, Brazil",
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
                 ),
-                const Spacer(),
                 ValueListenableBuilder(
-                  valueListenable: _chartService.productsQuantity,
+                  valueListenable: _cartService.productsQuantity,
                   builder: (context, value, child) {
                     if (value == 0) return Container();
 
@@ -37,7 +67,9 @@ class BodyHeaderWidget extends StatelessWidget {
                   },
                 ),
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    globals.tabController.jumpToTab(2);
+                  },
                   icon: Icon(
                     size: MediaQuery.of(context).devicePixelRatio * 15,
                     Icons.shopping_bag_outlined,
@@ -46,8 +78,15 @@ class BodyHeaderWidget extends StatelessWidget {
                 ),
               ],
             ),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.015),
             TextField(
+              controller: _state.txtController,
+              focusNode: _focusNode,
               onChanged: (value) => _state.setFilterValue(filter: value),
+              onSubmitted: (value) {
+                if (globals.tabController.index == 1) return;
+                globals.tabController.jumpToTab(1);
+              },
               decoration: InputDecoration(
                 constraints: BoxConstraints(
                   maxHeight: MediaQuery.of(context).size.height * 0.06,
